@@ -39,8 +39,8 @@ class GoogleSearchWrap:
         """
         all_snippets = []
         links = []
+        url = "https://www.googleapis.com/customsearch/v1"
         for page in range(1, self.num_pages * self.num_results, self.num_results):
-            url = "https://www.googleapis.com/customsearch/v1"
             params = {
                 "key": self.api_key,
                 "cx": self.search_engine_id,

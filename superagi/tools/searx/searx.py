@@ -42,9 +42,7 @@ class SearxSearchTool(BaseTool):
             Snippets from the Searx search.
         """
         snippets = search_results(query)
-        summary = self.summarise_result(query, snippets)
-
-        return summary
+        return self.summarise_result(query, snippets)
 
     def summarise_result(self, query, snippets):
         """

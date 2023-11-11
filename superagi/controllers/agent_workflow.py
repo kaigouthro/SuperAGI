@@ -23,7 +23,4 @@ def list_workflows(organisation=Depends(get_user_organisation)):
 
     workflows = db.session.query(AgentWorkflow).all()
 
-    output_json = []
-    for workflow in workflows:
-        output_json.append(workflow.to_dict())
-    return output_json
+    return [workflow.to_dict() for workflow in workflows]

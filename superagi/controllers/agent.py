@@ -421,11 +421,7 @@ def get_agents_by_project_id(project_id: int,
 
         # Query the AgentExecution table using the agent ID
         executions = db.session.query(AgentExecution).filter_by(agent_id=agent_id).all()
-        is_running = False
-        for execution in executions:
-            if execution.status == "RUNNING":
-                is_running = True
-                break
+        is_running = any(execution.status == "RUNNING" for execution in executions)
         # Check if the agent is scheduled
         is_scheduled = db.session.query(AgentSchedule).filter_by(agent_id=agent_id,
                                                                  status="SCHEDULED").first() is not None

@@ -8,7 +8,7 @@ class CustomLogRecord(logging.LogRecord):
 
         frame = inspect.currentframe().f_back
         while frame:
-            if frame.f_globals['__name__'] != __name__ and frame.f_globals['__name__'] != 'logging':
+            if frame.f_globals['__name__'] not in [__name__, 'logging']:
                 break
             frame = frame.f_back
 

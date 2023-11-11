@@ -31,11 +31,7 @@ def create_weaviate_client(
     if use_embedded:
         client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions())
     elif url:
-        if api_key:
-            auth_config = weaviate.AuthApiKey(api_key=api_key)
-        else:
-            auth_config = None
-
+        auth_config = weaviate.AuthApiKey(api_key=api_key) if api_key else None
         client = weaviate.Client(url=url, auth_client_secret=auth_config)
     else:
         raise ValueError("Invalid arguments passed to create_weaviate_client")
@@ -88,9 +84,7 @@ class Weaviate(VectorStore):
         documents = []
         for result in results_data:
             text_content = result[self.text_field]
-            metadata = {}
-            for field in metadata_fields:
-                metadata[field] = result[field]
+            metadata = {field: result[field] for field in metadata_fields}
             document = Document(text_content=text_content, metadata=metadata)
             documents.append(document)
 
@@ -98,9 +92,8 @@ class Weaviate(VectorStore):
 
     def _get_metadata_fields(self) -> List[str]:
         schema = self.client.schema.get(self.index)
-        property_names = []
-        for property_schema in schema["properties"]:
-            property_names.append(property_schema["name"])
-
+        property_names = [
+            property_schema["name"] for property_schema in schema["properties"]
+        ]
         property_names.remove(self.text_field)
         return property_names

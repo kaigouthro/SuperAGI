@@ -77,14 +77,14 @@ class GithubDeleteFileTool(BaseTool):
                 fork_response = github_helper.make_fork(repository_owner, repository_name, base_branch, headers)
             branch_response = github_helper.create_branch(repository_name, base_branch, head_branch, headers)
             logger.info("branch_response", branch_response)
-            if branch_response == 201 or branch_response == 422:
+            if branch_response in [201, 422]:
                 github_helper.sync_branch(github_username, repository_name, base_branch, head_branch, headers)
 
             file_response = github_helper.delete_file(repository_name, file_name, folder_path, commit_message,
                                                       head_branch, headers)
             pr_response = github_helper.create_pull_request(repository_owner, repository_name, head_branch, base_branch,
                                                             headers)
-            if (pr_response == 201 or pr_response == 422) and (file_response == 200):
+            if pr_response in [201, 422] and file_response == 200:
                 return f"Pull request to Delete {file_name} has been created"
             else:
                 return "Error while deleting file"

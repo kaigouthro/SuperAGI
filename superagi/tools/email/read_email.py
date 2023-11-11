@@ -69,24 +69,25 @@ class ReadEmailTool(BaseTool):
             return messages
 
     def _process_message(self, email_msg, response):
-        if isinstance(response, tuple):
-            msg = email.message_from_bytes(response[1])
-            email_msg["From"], email_msg["To"], email_msg["Date"], email_msg[
-                "Subject"] = ReadEmail().obtain_header(msg)
-            if msg.is_multipart():
-                for part in msg.walk():
-                    content_type = part.get_content_type()
-                    content_disposition = str(part.get("Content-Disposition"))
-                    try:
-                        body = part.get_payload(decode=True).decode()
-                    except:
-                        pass
-                    if content_type == "text/plain" and "attachment" not in content_disposition:
-                        email_msg["Message Body"] = ReadEmail().clean_email_body(body)
-                    elif "attachment" in content_disposition:
-                        ReadEmail().download_attachment(part, email_msg["Subject"])
-            else:
-                content_type = msg.get_content_type()
-                body = msg.get_payload(decode=True).decode()
-                if content_type == "text/plain":
+        if not isinstance(response, tuple):
+            return
+        msg = email.message_from_bytes(response[1])
+        email_msg["From"], email_msg["To"], email_msg["Date"], email_msg[
+            "Subject"] = ReadEmail().obtain_header(msg)
+        if msg.is_multipart():
+            for part in msg.walk():
+                content_type = part.get_content_type()
+                content_disposition = str(part.get("Content-Disposition"))
+                try:
+                    body = part.get_payload(decode=True).decode()
+                except:
+                    pass
+                if content_type == "text/plain" and "attachment" not in content_disposition:
                     email_msg["Message Body"] = ReadEmail().clean_email_body(body)
+                elif "attachment" in content_disposition:
+                    ReadEmail().download_attachment(part, email_msg["Subject"])
+        else:
+            content_type = msg.get_content_type()
+            body = msg.get_payload(decode=True).decode()
+            if content_type == "text/plain":
+                email_msg["Message Body"] = ReadEmail().clean_email_body(body)

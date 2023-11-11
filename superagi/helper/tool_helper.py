@@ -75,9 +75,7 @@ def get_classes_in_file(file_path, clazz):
 
     for name, member in inspect.getmembers(module):
         if inspect.isclass(member) and issubclass(member, clazz) and member != clazz:
-            class_dict = {}
-            class_dict['class_name'] = member.__name__
-
+            class_dict = {'class_name': member.__name__}
             class_obj = getattr(module, member.__name__)
             try:
                 obj = class_obj()
@@ -138,9 +136,9 @@ def update_base_tool_class_info(classes, file_name, folder_name, session, tool_n
     for clazz in classes:
         if clazz["class_name"] is not None:
             tool_name = clazz['tool_name']
-            tool_description = clazz['tool_description']
             toolkit_id = tool_name_to_toolkit.get((tool_name, folder_name), None)
             if toolkit_id is not None:
+                tool_description = clazz['tool_description']
                 new_tool = Tool.add_or_update(session, tool_name=tool_name, folder_name=folder_name,
                                               class_name=clazz['class_name'], file_name=file_name,
                                               toolkit_id=tool_name_to_toolkit[(tool_name, folder_name)],
@@ -193,9 +191,9 @@ def update_base_toolkit_info(classes, code_link, folder_name, new_toolkits, orga
                 session,
                 name=toolkit_name,
                 description=toolkit_description,
-                show_toolkit=True if len(tools) > 1 else False,
+                show_toolkit=len(tools) > 1,
                 organisation_id=organisation.id,
-                tool_code_link=code_link
+                tool_code_link=code_link,
             )
             new_toolkits.append(new_toolkit)
             tool_mapping = {}
@@ -235,8 +233,7 @@ def get_readme_content_from_code_link(tool_code_link):
     if response.status_code == 404:
         readme_url = f"https://raw.githubusercontent.com/{username}/{repository}/{branch}/README.md"
         response = requests.get(readme_url)
-    readme_content = response.text
-    return readme_content
+    return response.text
 
 
 def register_toolkits(session, organisation):
@@ -249,11 +246,7 @@ def register_toolkits(session, organisation):
 
 
 def extract_repo_name(repo_link):
-    # Extract the repository name from the link
-    # Assuming the GitHub link format: https://github.com/username/repoName
-    repo_name = repo_link.rsplit('/', 1)[-1]
-
-    return repo_name
+    return repo_link.rsplit('/', 1)[-1]
 
 
 def add_tool_to_json(repo_link):

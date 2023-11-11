@@ -35,8 +35,9 @@ def super_agi():
     agent_config = {"permission_type": "RESTRICTED", "agent_execution_id": 1, "agent_id": 2}
     output_parser = AgentSchemaOutputParser()
 
-    super_agi = SuperAgi(ai_name, ai_role, llm, memory, tools, agent_config, output_parser)
-    return super_agi
+    return SuperAgi(
+        ai_name, ai_role, llm, memory, tools, agent_config, output_parser
+    )
 
 
 def test_check_permission_in_restricted_mode_not_required(super_agi):

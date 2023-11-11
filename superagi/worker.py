@@ -18,8 +18,8 @@ from superagi.types.model_source_types import ModelSourceType
 redis_url = get_config('REDIS_URL') or 'localhost:6379'
 
 app = Celery("superagi", include=["superagi.worker"], imports=["superagi.worker"])
-app.conf.broker_url = "redis://" + redis_url + "/0"
-app.conf.result_backend = "redis://" + redis_url + "/0"
+app.conf.broker_url = f"redis://{redis_url}/0"
+app.conf.result_backend = f"redis://{redis_url}/0"
 app.conf.worker_concurrency = 10
 app.conf.accept_content = ['application/x-python-serialize', 'application/json']
 
@@ -45,7 +45,7 @@ def execute_agent(agent_execution_id: int, time):
     """Execute an agent step in background."""
     from superagi.jobs.agent_executor import AgentExecutor
     handle_tools_import()
-    logger.info("Execute agent:" + str(time) + "," + str(agent_execution_id))
+    logger.info(f"Execute agent:{str(time)},{agent_execution_id}")
     AgentExecutor().execute_next_action(agent_execution_id=agent_execution_id)
 
 
@@ -72,7 +72,7 @@ def summarize_resource(agent_id: int, resource_id: int):
     else:
         documents = ResourceManager(str(agent_id)).create_llama_document(file_path)
 
-    logger.info("Summarize resource:" + str(agent_id) + "," + str(resource_id))
+    logger.info(f"Summarize resource:{agent_id},{resource_id}")
     resource_summarizer = ResourceSummarizer(session=session)
     resource_summarizer.add_to_vector_store_and_create_summary(agent_id=agent_id,
                                                                resource_id=resource_id,

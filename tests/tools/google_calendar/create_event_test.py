@@ -42,7 +42,6 @@ class TestCreateEventCalendarTool(unittest.TestCase):
         self.create_event_tool = CreateEventCalendarTool()
     @patch.object(GoogleCalendarCreds, "get_credentials")
     @patch.object(CalendarDate, "create_event_dates")
-
     def test_execute(self, mock_create_event_dates, mock_get_credentials):
         mock_get_credentials.return_value = {
             "success": True,
@@ -56,7 +55,7 @@ class TestCreateEventCalendarTool(unittest.TestCase):
         mock_create_event_dates.return_value = mock_date_utc
         mock_service = MagicMock()
         mock_service.events.return_value = MagicMock()
-        output_str_expected = f"Event Test Event at {mock_date_utc['start_datetime_utc']} created successfully, link for the event {'https://somerandomlink'}"
+        output_str_expected = f"Event Test Event at {mock_date_utc['start_datetime_utc']} created successfully, link for the event https://somerandomlink"
         output_str = self.create_event_tool._execute("Test Event", "A test event", ["test@example.com"], start_date="2022-01-01", start_time="12:00:00", end_date="2022-01-01", end_time="13:00:00", location="London")
         self.assertEqual(output_str, output_str_expected)
         event = {

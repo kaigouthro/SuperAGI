@@ -104,8 +104,9 @@ class WebpageExtractor:
                 for tag in soup(['script', 'style', 'nav', 'footer', 'head', 'link', 'meta', 'noscript']):
                     tag.decompose()
 
-                main_content_areas = soup.find_all(['main', 'article', 'section', 'div'])
-                if main_content_areas:
+                if main_content_areas := soup.find_all(
+                    ['main', 'article', 'section', 'div']
+                ):
                     main_content = max(main_content_areas, key=lambda x: len(x.text))
                     content_tags = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']
                     content = ' '.join([tag.text.strip() for tag in main_content.find_all(content_tags)])
@@ -116,7 +117,7 @@ class WebpageExtractor:
                 content = re.sub(r'\s+', ' ', content)
                 return content
             elif response.status_code == 404:
-                return f"Error: 404. Url is invalid or does not exist. Try with valid url..."
+                return "Error: 404. Url is invalid or does not exist. Try with valid url..."
             else:
                 logger.error(f"Error while extracting text from HTML (bs4): {response.status_code}")
                 return f"Error while extracting text from HTML (bs4): {response.status_code}"
@@ -148,10 +149,7 @@ class WebpageExtractor:
             tree = html.fromstring(html_content)
             paragraphs = tree.cssselect('p, h1, h2, h3, h4, h5, h6')
             content = ' '.join([para.text_content() for para in paragraphs if para.text_content()])
-            content = content.replace('\t', ' ').replace('\n', ' ').strip()
-
-            return content
-
+            return content.replace('\t', ' ').replace('\n', ' ').strip()
         except ArticleException as ae:
             logger.error("Error while extracting text from HTML (lxml): {str(ae)}")
             return ""

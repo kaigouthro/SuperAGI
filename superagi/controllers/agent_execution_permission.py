@@ -60,10 +60,12 @@ def get_agent_execution_permission(agent_execution_permission_id: int,
         AgentExecutionPermission: The requested agent execution permission.
     """
 
-    db_agent_execution_permission = db.session.query(AgentExecutionPermission).get(agent_execution_permission_id)
-    if not db_agent_execution_permission:
+    if db_agent_execution_permission := db.session.query(
+        AgentExecutionPermission
+    ).get(agent_execution_permission_id):
+        return db_agent_execution_permission
+    else:
         raise HTTPException(status_code=404, detail="Agent execution permission not found")
-    return db_agent_execution_permission
 
 
 @router.post("/add", response_model=AgentExecutionPermissionOut)

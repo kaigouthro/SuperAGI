@@ -80,9 +80,7 @@ class GithubHelper:
         url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/contents/{file_path}'
         r = requests.get(url, headers=headers)
         r.raise_for_status()
-        data = r.json()
-
-        return data
+        return r.json()
 
     def sync_branch(self, repository_owner, repository_name, base_branch, head_branch, headers):
         """
@@ -313,7 +311,4 @@ class GithubHelper:
         pattern = r'^https?://(?:www\.)?github\.com/[\w\-]+/[\w\-]+$'
 
         # Check if the link matches the pattern
-        if re.match(pattern, link):
-            return True
-
-        return False
+        return bool(re.match(pattern, link))

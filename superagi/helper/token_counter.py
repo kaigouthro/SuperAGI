@@ -79,5 +79,4 @@ class TokenCounter:
             int: The number of tokens in the text.
         """
         encoding = tiktoken.get_encoding("cl100k_base")
-        num_tokens = len(encoding.encode(message)) + 4
-        return num_tokens
+        return len(encoding.encode(message)) + 4

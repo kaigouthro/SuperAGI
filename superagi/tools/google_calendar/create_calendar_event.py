@@ -28,7 +28,7 @@ class CreateEventCalendarTool(BaseTool):
         if service["success"]:
             service = service["service"]
         else:
-            return f"Kindly connect to Google Calendar"
+            return "Kindly connect to Google Calendar"
         date_utc = CalendarDate().create_event_dates(service, start_date, start_time, end_date, end_time)
         attendees_list = []
         for attendee in attendees:
@@ -54,12 +54,9 @@ class CreateEventCalendarTool(BaseTool):
         else:
             event["conferenceData"] = {
                 "createRequest": {
-                    "requestId": f"meetSample123",
-                    "conferenceSolutionKey": {
-                        "type": "hangoutsMeet"
-                    },
-                },
+                    "requestId": "meetSample123",
+                    "conferenceSolutionKey": {"type": "hangoutsMeet"},
+                }
             }
         event = service.events().insert(calendarId="primary", body=event, conferenceDataVersion=1).execute()
-        output_str = f"Event {event_name} at {date_utc['start_datetime_utc']} created successfully, link for the event {event.get('htmlLink')}"
-        return output_str
+        return f"Event {event_name} at {date_utc['start_datetime_utc']} created successfully, link for the event {event.get('htmlLink')}"

@@ -38,22 +38,26 @@ class AnalyticsHelper:
         runs = self.session.query(agent_runs_query).all()
         tokens = self.session.query(agent_tokens_query).all()
 
-        metrics = {
+        return {
             'agent_details': {
-                'total_agents': sum([item.agents for item in agents]),
-                'model_metrics': [{'name': item.model, 'value': item.agents} for item in agents]
+                'total_agents': sum(item.agents for item in agents),
+                'model_metrics': [
+                    {'name': item.model, 'value': item.agents} for item in agents
+                ],
             },
             'run_details': {
-                'total_runs': sum([item.runs for item in runs]),
-                'model_metrics': [{'name': item.model, 'value': item.runs} for item in runs]
+                'total_runs': sum(item.runs for item in runs),
+                'model_metrics': [
+                    {'name': item.model, 'value': item.runs} for item in runs
+                ],
             },
             'tokens_details': {
-                'total_tokens': sum([item.tokens for item in tokens]),
-                'model_metrics': [{'name': item.model, 'value': item.tokens} for item in tokens]
+                'total_tokens': sum(item.tokens for item in tokens),
+                'model_metrics': [
+                    {'name': item.model, 'value': item.tokens} for item in tokens
+                ],
             },
         }
-
-        return metrics
 
     def fetch_agent_data(self) -> Dict[str, List[Dict[str, Any]]]:
         agent_subquery = self.session.query(
@@ -146,15 +150,18 @@ class AnalyticsHelper:
 
         result = query.all()
 
-        agent_runs = [{
-            'name': row.agent_execution_name,
-            'tokens_consumed': int(row.tokens_consumed) if row.tokens_consumed else 0,
-            'calls': int(row.calls) if row.calls else 0,
-            'created_at': row.created_at,
-            'updated_at': row.updated_at
-        } for row in result]
-
-        return agent_runs
+        return [
+            {
+                'name': row.agent_execution_name,
+                'tokens_consumed': int(row.tokens_consumed)
+                if row.tokens_consumed
+                else 0,
+                'calls': int(row.calls) if row.calls else 0,
+                'created_at': row.created_at,
+                'updated_at': row.updated_at,
+            }
+            for row in result
+        ]
 
 
     def get_active_runs(self) -> List[Dict[str, str]]:
@@ -185,16 +192,21 @@ class AnalyticsHelper:
             agent_created_subquery.c.agent_name
         ).select_from(start_subquery)
 
-        query = query.outerjoin(end_event_subquery, start_subquery.c.agent_execution_id == end_event_subquery.c.agent_execution_id).filter(end_event_subquery.c.agent_execution_id == None)
+        query = query.outerjoin(
+            end_event_subquery,
+            start_subquery.c.agent_execution_id
+            == end_event_subquery.c.agent_execution_id,
+        ).filter(end_event_subquery.c.agent_execution_id is None)
 
         query = query.join(agent_created_subquery, start_subquery.c.agent_id == agent_created_subquery.c.agent_id)
 
         result = query.all()
 
-        running_executions = [{
-            'name': row.agent_execution_name,
-            'created_at': row.created_at,
-            'agent_name': row.agent_name or 'Unknown',
-        } for row in result]
-
-        return running_executions
+        return [
+            {
+                'name': row.agent_execution_name,
+                'created_at': row.created_at,
+                'agent_name': row.agent_name or 'Unknown',
+            }
+            for row in result
+        ]

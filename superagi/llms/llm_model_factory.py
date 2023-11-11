@@ -10,10 +10,10 @@ class ModelFactory:
         self._creators[model] = creator
 
     def get_model(self, model, **kwargs):
-        creator = self._creators.get(model)
-        if not creator:
+        if creator := self._creators.get(model):
+            return creator(**kwargs)
+        else:
             raise ValueError(model)
-        return creator(**kwargs)
 
 
 factory = ModelFactory()

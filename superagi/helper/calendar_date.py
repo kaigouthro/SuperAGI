@@ -7,26 +7,31 @@ class CalendarDate:
     def create_event_dates(self, service, start_date, start_time, end_date, end_time):
         local_tz = pytz.timezone(self._get_time_zone(service))
         start_datetime, end_datetime = self._localize_daterange(start_date, end_date, start_time, end_time, local_tz)
-        date_utc = {
-            "start_datetime_utc": self._datetime_to_string(start_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"),
-            "end_datetime_utc": self._datetime_to_string(end_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"),
-            "timeZone": self._get_time_zone(service)
+        return {
+            "start_datetime_utc": self._datetime_to_string(
+                start_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"
+            ),
+            "end_datetime_utc": self._datetime_to_string(
+                end_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"
+            ),
+            "timeZone": self._get_time_zone(service),
         }
-        return date_utc
 
     def get_date_utc(self, start_date, end_date, start_time, end_time, service):
         local_tz = pytz.timezone(self._get_time_zone(service))
         start_datetime, end_datetime = self._localize_daterange(start_date, end_date, start_time, end_time, local_tz)
-        date_utc = {
-            "start_datetime_utc": self._datetime_to_string(start_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"),
-            "end_datetime_utc": self._datetime_to_string(end_datetime, "%Y-%m-%dT%H:%M:%S.%fZ")
+        return {
+            "start_datetime_utc": self._datetime_to_string(
+                start_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"
+            ),
+            "end_datetime_utc": self._datetime_to_string(
+                end_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"
+            ),
         }
-        return date_utc
 
     def _get_time_zone(self, service):
         calendar = service.calendars().get(calendarId='primary').execute()
-        time_detail = calendar['timeZone']
-        return time_detail
+        return calendar['timeZone']
 
     def _convert_to_utc(self, date_time, local_tz):
         local_datetime = local_tz.localize(date_time)

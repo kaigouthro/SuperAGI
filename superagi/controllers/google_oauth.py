@@ -62,11 +62,7 @@ def send_google_calendar_configs(google_creds: dict, toolkit_id: int, Authorize:
     google_creds = json.dumps(google_creds)
     print(google_creds)
     tokens = OauthTokens().add_or_update(session, toolkit_id, user_id, toolkit.organisation_id, "GOOGLE_CALENDAR_OAUTH_TOKENS", google_creds)
-    if tokens:
-        success = True
-    else:
-        success = False
-    return success
+    return bool(tokens)
 
 
 @router.get("/get_google_creds/toolkit_id/{toolkit_id}")

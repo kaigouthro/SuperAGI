@@ -50,17 +50,12 @@ class SendEmailTool(BaseTool):
         message["Subject"] = subject
         message["From"] = email_sender
         message["To"] = to
-        signature = self.get_tool_config('EMAIL_SIGNATURE')
-        if signature:
+        if signature := self.get_tool_config('EMAIL_SIGNATURE'):
             body += f"\n{signature}"
         message.set_content(body)
 
         send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE') or "FALSE"
-        if send_to_draft.upper() == "TRUE":
-            send_to_draft = True
-        else:
-            send_to_draft = False
-
+        send_to_draft = send_to_draft.upper() == "TRUE"
         if message["To"] == "example@example.com" or send_to_draft:
             draft_folder = self.get_tool_config('EMAIL_DRAFT_FOLDER') or "Drafts"
             imap_server = self.get_tool_config('EMAIL_IMAP_SERVER')

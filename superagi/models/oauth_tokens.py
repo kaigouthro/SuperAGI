@@ -39,9 +39,12 @@ class OauthTokens(DBBaseModel):
         return f"Tokens(id={self.id}, user_id={self.user_id}, organisation_id={self.organisation_id} toolkit_id={self.toolkit_id}, key={self.key}, value={self.value})"
     
     @classmethod
-    def add_or_update(self, session: Session, toolkit_id: int, user_id: int, organisation_id: int, key: str, value: Text = None):
-        oauth_tokens = session.query(OauthTokens).filter_by(toolkit_id=toolkit_id, user_id=user_id).first()
-        if oauth_tokens:
+    def add_or_update(cls, session: Session, toolkit_id: int, user_id: int, organisation_id: int, key: str, value: Text = None):
+        if (
+            oauth_tokens := session.query(OauthTokens)
+            .filter_by(toolkit_id=toolkit_id, user_id=user_id)
+            .first()
+        ):
             # Update existing oauth tokens
             if value is not None:
                 oauth_tokens.value = value

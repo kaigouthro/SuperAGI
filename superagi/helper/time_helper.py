@@ -22,15 +22,13 @@ def get_time_difference(timestamp1, timestamp2):
     hours, seconds_remainder = divmod(seconds_remainder, 60 * 60)  # 1 hour = 60 minutes * 60 seconds
     minutes, _ = divmod(seconds_remainder, 60)  # 1 minute = 60 seconds
 
-    # Create a dictionary to store the time difference
-    time_difference_dict = {
+    return {
         "years": years,
         "months": months,
         "days": days,
         "hours": hours,
-        "minutes": minutes
+        "minutes": minutes,
     }
-    return time_difference_dict
 
 
 def parse_interval_to_seconds(interval: str) -> int:

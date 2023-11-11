@@ -51,8 +51,11 @@ def update_tool_config(toolkit_name: str, configs: list, organisation: Organisat
             key = config.get("key")
             value = config.get("value")
             if key is not None:
-                tool_config = db.session.query(ToolConfig).filter_by(toolkit_id=toolkit.id, key=key).first()
-                if tool_config:
+                if (
+                    tool_config := db.session.query(ToolConfig)
+                    .filter_by(toolkit_id=toolkit.id, key=key)
+                    .first()
+                ):
                     # Update existing tool config
                     tool_config.value = value
                     db.session.commit()
@@ -87,12 +90,14 @@ def create_or_update_tool_config(toolkit_name: str, tool_configs,
 
     # Iterate over the tool_configs list
     for tool_config_data in tool_configs:
-        existing_tool_config = db.session.query(ToolConfig).filter(
-            ToolConfig.toolkit_id == toolkit.id,
-            ToolConfig.key == tool_config_data.key
-        ).first()
-
-        if existing_tool_config:
+        if (
+            existing_tool_config := db.session.query(ToolConfig)
+            .filter(
+                ToolConfig.toolkit_id == toolkit.id,
+                ToolConfig.key == tool_config_data.key,
+            )
+            .first()
+        ):
             # Update the existing tool config
             existing_tool_config.value = tool_config_data.value
         else:
@@ -123,13 +128,21 @@ def get_all_tool_configs(toolkit_name: str, organisation: Organisation = Depends
         HTTPException (status_code=403): If the user is not authorized to access the tool kit.
     """
 
-    toolkit = db.session.query(Toolkit).filter(Toolkit.name == toolkit_name,
-                                               Toolkit.organisation_id == organisation.id).first()
-    if not toolkit:
+    if (
+        toolkit := db.session.query(Toolkit)
+        .filter(
+            Toolkit.name == toolkit_name,
+            Toolkit.organisation_id == organisation.id,
+        )
+        .first()
+    ):
+        return (
+            db.session.query(ToolConfig)
+            .filter(ToolConfig.toolkit_id == toolkit.id)
+            .all()
+        )
+    else:
         raise HTTPException(status_code=404, detail='ToolKit not found')
-
-    tool_configs = db.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit.id).all()
-    return tool_configs
 
 
 @router.get("/get/toolkit/{toolkit_name}/key/{key}", status_code=200)
@@ -156,12 +169,11 @@ def get_tool_config(toolkit_name: str, key: str, organisation: Organisation = De
     if toolkit not in user_toolkits:
         raise HTTPException(status_code=403, detail='Unauthorized')
 
-    tool_config = db.session.query(ToolConfig).filter(
-        ToolConfig.toolkit_id == toolkit.id,
-        ToolConfig.key == key
-    ).first()
-
-    if not tool_config:
+    if (
+        tool_config := db.session.query(ToolConfig)
+        .filter(ToolConfig.toolkit_id == toolkit.id, ToolConfig.key == key)
+        .first()
+    ):
+        return tool_config
+    else:
         raise HTTPException(status_code=404, detail="Tool configuration not found")
-
-    return tool_config

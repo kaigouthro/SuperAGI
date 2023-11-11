@@ -75,9 +75,7 @@ class ChromaDB(VectorStore):
         """Return docs most similar to query using specified search type."""
         embedding_vector = self.embedding_model.get_embedding(query)
         collection = self.client.get_collection(name=self.collection_name)
-        filters = {}
-        for key in metadata.keys():
-            filters[key] = metadata[key]
+        filters = {key: metadata[key] for key in metadata.keys()}
         results = collection.query(
             query_embeddings=embedding_vector,
             include=["documents"],
@@ -85,17 +83,9 @@ class ChromaDB(VectorStore):
             where=filters
         )
 
-        documents = []
-
-        for node_id, text, metadata in zip(
-                results["ids"][0],
-                results["documents"][0],
-                results["metadatas"][0]):
-            documents.append(
-                Document(
-                    text_content=text,
-                    metadata=metadata
-                )
+        return [
+            Document(text_content=text, metadata=metadata)
+            for node_id, text, metadata in zip(
+                results["ids"][0], results["documents"][0], results["metadatas"][0]
             )
-
-        return documents
+        ]

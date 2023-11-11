@@ -64,20 +64,22 @@ class TwitterTokens:
         res = conn.getresponse()
         response_data = res.read().decode('utf-8')
         conn.close()
-        request_token_resp = dict(urllib.parse.parse_qsl(response_data))
-        return request_token_resp
+        return dict(urllib.parse.parse_qsl(response_data))
 
     def percent_encode(self, val):
         return urllib.parse.quote(val, safe='')
 
     def gen_nonce(self):
-        nonce = ''.join([str(random.randint(0, 9)) for i in range(32)])
-        return nonce
+        return ''.join([str(random.randint(0, 9)) for _ in range(32)])
 
     def get_twitter_creds(self, toolkit_id):
         toolkit = self.session.query(Toolkit).filter(Toolkit.id == toolkit_id).first()
         organisation_id = toolkit.organisation_id
         twitter_creds = self.session.query(OauthTokens).filter(OauthTokens.toolkit_id == toolkit_id, OauthTokens.organisation_id == organisation_id).first()
         twitter_creds = ast.literal_eval(twitter_creds.value)
-        final_creds = Creds(twitter_creds['api_key'], twitter_creds['api_key_secret'], twitter_creds['oauth_token'], twitter_creds['oauth_token_secret'])
-        return final_creds
+        return Creds(
+            twitter_creds['api_key'],
+            twitter_creds['api_key_secret'],
+            twitter_creds['oauth_token'],
+            twitter_creds['oauth_token_secret'],
+        )

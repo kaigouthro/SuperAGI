@@ -212,9 +212,10 @@ def list_agent_templates(template_source="local", search_str="", page=0, organis
     else:
         local_templates = db.session.query(AgentTemplate).filter(AgentTemplate.organisation_id == organisation.id,
                                                                  AgentTemplate.marketplace_template_id != None).all()
-        local_templates_hash = {}
-        for local_template in local_templates:
-            local_templates_hash[local_template.marketplace_template_id] = True
+        local_templates_hash = {
+            local_template.marketplace_template_id: True
+            for local_template in local_templates
+        }
         templates = AgentTemplate.fetch_marketplace_list(search_str, page)
 
         for template in templates:
@@ -273,15 +274,14 @@ def marketplace_template_detail(agent_template_id):
     for template_config in template_configs:
         config_value = AgentTemplate.eval_agent_config(template_config.key, template_config.value)
         tool_configs[template_config.key] = {"value": config_value}
-    output_json = {
+    return {
         "id": template.id,
         "name": template.name,
         "description": template.description,
         "agent_workflow_id": template.agent_workflow_id,
         "agent_workflow_name": workflow.name,
-        "configs": tool_configs
+        "configs": tool_configs,
     }
-    return output_json
 
 
 @router.post("/download", status_code=201)
@@ -325,11 +325,12 @@ def fetch_agent_config_from_template(agent_template_id: int,
 
     template_config = db.session.query(AgentTemplateConfig).filter(
         AgentTemplateConfig.agent_template_id == agent_template_id).all()
-    template_config_dict = {}
     main_keys = AgentTemplate.main_keys()
-    for config in template_config:
-        if config.key in main_keys:
-            template_config_dict[config.key] = AgentTemplate.eval_agent_config(config.key, config.value)
+    template_config_dict = {
+        config.key: AgentTemplate.eval_agent_config(config.key, config.value)
+        for config in template_config
+        if config.key in main_keys
+    }
     if "instruction" not in template_config_dict:
         template_config_dict["instruction"] = []
     template_config_dict["agent_template_id"] = agent_template.id

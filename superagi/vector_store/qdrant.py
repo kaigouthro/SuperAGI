@@ -155,14 +155,13 @@ class Qdrant(VectorStore):
             texts: Iterable[str]
     ) -> List[List[float]]:
         """Return embeddings for a list of texts using the embedding model."""
-        if self.embedding_model is not None:
-            query_vectors = []
-            for text in texts:
-                query_vector = self.embedding_model.get_embedding(text)
-                query_vectors.append(query_vector)
-        else:
+        if self.embedding_model is None:
             raise ValueError("Embedding model is not set")
 
+        query_vectors = []
+        for text in texts:
+            query_vector = self.embedding_model.get_embedding(text)
+            query_vectors.append(query_vector)
         return query_vectors
 
     def __build_payloads(
@@ -198,16 +197,13 @@ class Qdrant(VectorStore):
             results: List[Dict]
     ) -> List[Document]:
         """Return the document version corresponding to each result."""
-        documents = []
-        for result in results:
-            documents.append(
-                Document(
-                    text_content=result.payload.get(self.text_field_payload_key),
-                    metadata=result.payload.get(self.metadata_payload_key) or {},
-                )
+        return [
+            Document(
+                text_content=result.payload.get(self.text_field_payload_key),
+                metadata=result.payload.get(self.metadata_payload_key) or {},
             )
-
-        return documents
+            for result in results
+        ]
 
     @classmethod
     def create_collection(cls,
@@ -223,7 +219,10 @@ class Qdrant(VectorStore):
             collection_name: The name of the collection to create.
             size: The size for the new collection.
         """
-        if not any(collection.name == collection_name for collection in client.get_collections().collections):
+        if all(
+            collection.name != collection_name
+            for collection in client.get_collections().collections
+        ):
             client.create_collection(
                 collection_name=collection_name,
                 vectors_config=VectorParams(size=size, distance=Distance.COSINE),

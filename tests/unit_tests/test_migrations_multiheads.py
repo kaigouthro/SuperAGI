@@ -21,8 +21,7 @@ def test_alembic_down_revision():
     for file in all_py_files:
         with open(file) as f:
             content = f.read()
-            match = down_revision_pattern.search(content)
-            if match:
+            if match := down_revision_pattern.search(content):
                 down_revisions.append(match.group(1))
                 file_down_revisions.append((file, match.group(1)))
 
@@ -32,6 +31,6 @@ def test_alembic_down_revision():
     # get the files that have duplicate down revisions
     files_with_duplicates = [file for file, down_revision in file_down_revisions if down_revision in duplicates]
 
-    assert len(duplicates) == 0, f"Duplicate down revisions found in files: {files_with_duplicates} \n this is " \
-                                 f"caused because a newer migration might have been added after the migration " \
-                                 f"you added. Please fix this by changing the down_revision to the correct one."
+    assert (
+        not duplicates
+    ), f"Duplicate down revisions found in files: {files_with_duplicates} \n this is caused because a newer migration might have been added after the migration you added. Please fix this by changing the down_revision to the correct one."

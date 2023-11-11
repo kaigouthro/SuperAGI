@@ -85,8 +85,7 @@ class SendEmailAttachmentTool(BaseTool):
         message["Subject"] = subject
         message["From"] = email_sender
         message["To"] = to
-        signature = self.get_tool_config('EMAIL_SIGNATURE')
-        if signature:
+        if signature := self.get_tool_config('EMAIL_SIGNATURE'):
             body += f"\n{signature}"
         message.set_content(body)
         if attachment_path:
@@ -98,10 +97,7 @@ class SendEmailAttachmentTool(BaseTool):
                 message.add_attachment(file.read(), maintype=maintype, subtype=subtype, filename=attachment)
 
         send_to_draft = self.get_tool_config('EMAIL_DRAFT_MODE') or "FALSE"
-        if send_to_draft.upper() == "TRUE":
-            send_to_draft = True
-        else:
-            send_to_draft = False
+        send_to_draft = send_to_draft.upper() == "TRUE"
         if message["To"] == "example@example.com" or send_to_draft:
             draft_folder = self.get_tool_config('EMAIL_DRAFT_FOLDER')
             imap_server = self.get_tool_config('EMAIL_IMAP_SERVER')

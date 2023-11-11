@@ -52,7 +52,11 @@ class GoogleSerpTool(BaseTool):
         response = serp_api.search_run(query)
         summary = self.summarise_result(query, response["snippets"])
         if response["links"]:
-            return summary + "\n\nLinks:\n" + "\n".join("- " + link for link in response["links"][:3])
+            return (
+                summary
+                + "\n\nLinks:\n"
+                + "\n".join(f"- {link}" for link in response["links"][:3])
+            )
         return summary
 
     def summarise_result(self, query, snippets):

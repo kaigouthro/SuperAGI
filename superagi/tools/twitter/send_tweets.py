@@ -36,4 +36,4 @@ class SendTweetsTool(BaseTool):
         if tweet_response.status_code == 201:
             return "Tweet posted successfully!!"
         else:
-            return "Error posting tweet. (Status code: {})".format(tweet_response.status_code)
+            return f"Error posting tweet. (Status code: {tweet_response.status_code})"

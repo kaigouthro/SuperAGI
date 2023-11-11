@@ -45,7 +45,7 @@ class LlamaDocumentSummary:
         :return: summary of the texts
         """
         from llama_index import Document
-        if texts is not None and len(texts) > 0:
+        if texts is not None and texts:
             documents = [Document(doc_id=f"doc_id_{i}", text=text) for i, text in enumerate(texts)]
             return self.generate_summary_of_document(documents)
         raise ValueError("texts must be provided")

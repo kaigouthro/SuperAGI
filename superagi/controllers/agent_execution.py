@@ -235,8 +235,7 @@ def agent_list_by_status(status: str,
 
     running_agent_ids = db.session.query(AgentExecution.agent_id).filter(
         AgentExecution.status == status.upper()).distinct().all()
-    agent_ids = [agent_id for (agent_id) in running_agent_ids]
-    return agent_ids
+    return list(running_agent_ids)
 
 
 @router.get("/get/agent/{agent_id}")
@@ -263,9 +262,7 @@ def get_agent_by_latest_execution(project_id: int,
         .order_by(desc(AgentExecution.last_execution_time))
         .first()
     )
-    isRunning = False
-    if latest_execution.status == "RUNNING":
-        isRunning = True
+    isRunning = latest_execution.status == "RUNNING"
     agent = db.session.query(Agent).filter(Agent.id == latest_execution.agent_id).first()
     return {
         "agent_id": latest_execution.agent_id,

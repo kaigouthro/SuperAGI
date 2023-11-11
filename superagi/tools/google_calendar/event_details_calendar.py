@@ -19,26 +19,23 @@ class EventDetailsCalendarTool(BaseTool):
         if service["success"]:
             service = service["service"]
         else:
-            return f"Kindly connect to Google Calendar"
+            return "Kindly connect to Google Calendar"
         if event_id == "None":
-            return f"Add Event ID to fetch details of an event from Google Calendar"
-        else:
-            decoded_id = base64.b64decode(event_id)
-            eid = decoded_id.decode("utf-8")
-            eid  = eid.split(" ", 1)[0]
-            result = service.events().get(
-                calendarId = "primary",
-                eventId = eid
-            ).execute()
-            if "summary" in result:
-                summary = result['summary']
-            if result['start'] and result['end']:
-                start_date = result['start']['dateTime']
-                end_date = result['end']['dateTime']
-            attendees = []
-            if "attendees" in result:
-                for attendee in result['attendees']:
-                    attendees.append(attendee['email'])
-            attendees_str = ','.join(attendees)
-            output_str = f"Event details for the event id '{event_id}' is - \nSummary : {summary}\nStart Date and Time : {start_date}\nEnd Date and Time : {end_date}\nAttendees : {attendees_str}"
-            return output_str
+            return "Add Event ID to fetch details of an event from Google Calendar"
+        decoded_id = base64.b64decode(event_id)
+        eid = decoded_id.decode("utf-8")
+        eid  = eid.split(" ", 1)[0]
+        result = service.events().get(
+            calendarId = "primary",
+            eventId = eid
+        ).execute()
+        if "summary" in result:
+            summary = result['summary']
+        if result['start'] and result['end']:
+            start_date = result['start']['dateTime']
+            end_date = result['end']['dateTime']
+        attendees = []
+        if "attendees" in result:
+            attendees.extend(attendee['email'] for attendee in result['attendees'])
+        attendees_str = ','.join(attendees)
+        return f"Event details for the event id '{event_id}' is - \nSummary : {summary}\nStart Date and Time : {start_date}\nEnd Date and Time : {end_date}\nAttendees : {attendees_str}"

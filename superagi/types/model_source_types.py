@@ -16,12 +16,14 @@ class ModelSourceType(Enum):
     @classmethod
     def get_model_source_from_model(cls, model_name: str):
         open_ai_models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k']
-        google_models = ['google-palm-bison-001', 'models/chat-bison-001']
         if model_name in open_ai_models:
             return ModelSourceType.OpenAI
-        if model_name in google_models:
-            return ModelSourceType.GooglePalm
-        return ModelSourceType.OpenAI
+        google_models = ['google-palm-bison-001', 'models/chat-bison-001']
+        return (
+            ModelSourceType.GooglePalm
+            if model_name in google_models
+            else ModelSourceType.OpenAI
+        )
 
     def __str__(self):
         return self.value

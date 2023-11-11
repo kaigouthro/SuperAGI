@@ -45,20 +45,14 @@ class ListFileTool(BaseTool):
                                                                                                .toolkit_config.session,
                                                                                                agent_id=self.agent_id),
                                                                             path=input_directory)
-        # if "{agent_id}" in output_directory:
-        #     output_directory = output_directory.replace("{agent_id}", str(self.agent_id))
-        input_files = self.list_files(input_directory)
-        # output_files = self.list_files(output_directory)
-        return input_files #+ output_files
+        return self.list_files(input_directory)
 
     def list_files(self, directory):
         found_files = []
         for root, dirs, files in os.walk(directory):
-            for file in files:
-                if file.startswith(".") or "__pycache__" in root:
-                    continue
-                # relative_path = os.path.join(root, file)
-                # input_directory = ResourceHelper.get_root_input_dir()
-                # relative_path = relative_path.split(input_directory)[1]
-                found_files.append(file)
+            found_files.extend(
+                file
+                for file in files
+                if not file.startswith(".") and "__pycache__" not in root
+            )
         return found_files

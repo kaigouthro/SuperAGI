@@ -56,4 +56,6 @@ class LlamaVectorStoreFactory:
             qdrant_client = QdrantClient(host=qdrant_host_name, port=qdrant_port)
             return QdrantVectorStore(client=qdrant_client, collection_name=self.index_name)
 
-        raise ValueError(str(self.vector_store_name) + " vector store is not supported yet.")
+        raise ValueError(
+            f"{str(self.vector_store_name)} vector store is not supported yet."
+        )

@@ -31,11 +31,13 @@ class TwitterHelper:
         return media_ids
 
     def get_file_path(self, session, file_name, agent_id, agent_execution_id):
-        final_path = ResourceHelper().get_agent_write_resource_path(file_name,
-                                                                    agent=Agent.get_agent_from_id(session, agent_id),
-                                                                    agent_execution=AgentExecution.get_agent_execution_from_id(
-                                                                  session, agent_execution_id))
-        return final_path
+        return ResourceHelper().get_agent_write_resource_path(
+            file_name,
+            agent=Agent.get_agent_from_id(session, agent_id),
+            agent_execution=AgentExecution.get_agent_execution_from_id(
+                session, agent_execution_id
+            ),
+        )
 
     def send_tweets(self, params, creds):
         tweet_endpoint = "https://api.twitter.com/2/tweets"
@@ -44,5 +46,4 @@ class TwitterHelper:
                               resource_owner_key=creds.oauth_token,
                               resource_owner_secret=creds.oauth_token_secret)
 
-        response = oauth.post(tweet_endpoint, json=params)
-        return response
+        return oauth.post(tweet_endpoint, json=params)

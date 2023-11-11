@@ -174,8 +174,7 @@ def mock_agent_config_schedule():
 
 @pytest.fixture
 def mock_agent():
-    agent = Agent(id=1, name="SmartAGI", project_id=1)
-    return agent
+    return Agent(id=1, name="SmartAGI", project_id=1)
 
 
 def test_create_and_schedule_agent_success(mock_agent_config_schedule, mock_agent, mock_schedule):

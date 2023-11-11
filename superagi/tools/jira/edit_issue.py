@@ -43,8 +43,7 @@ class EditIssueTool(JiraTool):
             The success message mentioning key of the edited issue or Issue not found!
         """
         jira = self.build_jira_instance()
-        issues = jira.search_issues('key=')
-        if issues:
+        if issues := jira.search_issues('key='):
             issues[0].update(fields=fields)
             return f"Issue '{issues[0].key}' created successfully!"
-        return f"Issue not found!"
+        return "Issue not found!"

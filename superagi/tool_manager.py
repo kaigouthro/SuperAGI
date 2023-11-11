@@ -55,7 +55,7 @@ def download_tool(tool_url, target_folder):
 
 def load_tools_config():
     tool_config_path = str(Path(__file__).parent.parent)
-    with open(tool_config_path + "/tools.json", "r") as f:
+    with open(f"{tool_config_path}/tools.json", "r") as f:
         config = json.load(f)
         return config["tools"]
 

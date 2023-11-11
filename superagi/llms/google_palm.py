@@ -99,8 +99,7 @@ class GooglePalm(BaseLlm):
             list: The models.
         """
         try:
-            models_supported = ["chat-bison-001"]
-            return models_supported
+            return ["chat-bison-001"]
         except Exception as exception:
             logger.info("Google palm Exception:", exception)
             return []

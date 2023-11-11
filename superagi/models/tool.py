@@ -63,8 +63,7 @@ class Tool(DBBaseModel):
 
     @staticmethod
     def delete_tool(session, tool_name):
-        tool = session.query(Tool).filter(Tool.name == tool_name).first()
-        if tool:
+        if tool := session.query(Tool).filter(Tool.name == tool_name).first():
             session.delete(tool)
             session.commit()
             session.flush()

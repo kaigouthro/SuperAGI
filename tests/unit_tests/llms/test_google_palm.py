@@ -26,7 +26,7 @@ def test_chat_completion(mock_palm):
         candidate_count=palm_instance.candidate_count,
         top_k=palm_instance.top_k,
         top_p=palm_instance.top_p,
-        max_output_tokens=int(max_tokens)
+        max_output_tokens=max_tokens,
     )
 
 

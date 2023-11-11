@@ -43,11 +43,7 @@ def send_twitter_tool_configs(twitter_creds: str, Authorize: AuthJWT = Depends(c
         "oauth_token_secret": credentials["oauth_token_secret"]
     }
     tokens = OauthTokens().add_or_update(db.session, credentials["toolkit_id"], user_id, toolkit.organisation_id, "TWITTER_OAUTH_TOKENS", str(final_creds))
-    if tokens:
-        success = True
-    else:
-        success = False
-    return success
+    return bool(tokens)
 
 @router.get("/get_twitter_creds/toolkit_id/{toolkit_id}")
 def get_twitter_tool_configs(toolkit_id: int):
@@ -57,5 +53,4 @@ def get_twitter_tool_configs(toolkit_id: int):
         "api_key": twitter_config_key.value,
         "api_secret": twitter_config_secret.value
     }
-    response = TwitterTokens(db.session).get_request_token(api_data)
-    return response
+    return TwitterTokens(db.session).get_request_token(api_data)

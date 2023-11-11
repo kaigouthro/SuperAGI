@@ -25,11 +25,11 @@ class ResourceHelper:
         storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value))
         file_parts = os.path.splitext(file_name)
         if len(file_parts) <= 1:
-            file_name = file_name + ".txt"
+            file_name += ".txt"
         file_extension = os.path.splitext(file_name)[1][1:]
 
         if file_extension in ["png", "jpg", "jpeg"]:
-            file_type = "image/" + file_extension
+            file_type = f"image/{file_extension}"
         elif file_extension == "txt":
             file_type = "application/txt"
         else:
@@ -45,24 +45,30 @@ class ResourceHelper:
 
         logger.info("make_written_file_resource:", final_path)
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
-            file_path = "resources" + file_path
-        resource = Resource(name=file_name, path=file_path, storage_type=storage_type.value,
-                            size=file_size,
-                            type=file_type,
-                            channel="OUTPUT",
-                            agent_id=agent.id,
-                            agent_execution_id=agent_execution.id)
-        return resource
+            file_path = f"resources{file_path}"
+        return Resource(
+            name=file_name,
+            path=file_path,
+            storage_type=storage_type.value,
+            size=file_size,
+            type=file_type,
+            channel="OUTPUT",
+            agent_id=agent.id,
+            agent_execution_id=agent_execution.id,
+        )
 
     @classmethod
     def get_formatted_agent_level_path(cls, agent: Agent, path) -> object:
         formatted_agent_name = agent.name.replace(" ", "")
-        return path.replace("{agent_id}", formatted_agent_name + '_' + str(agent.id))
+        return path.replace("{agent_id}", f'{formatted_agent_name}_{str(agent.id)}')
 
     @classmethod
     def get_formatted_agent_execution_level_path(cls, agent_execution: AgentExecution, path):
         formatted_agent_execution_name = agent_execution.name.replace(" ", "")
-        return path.replace("{agent_execution_id}", (formatted_agent_execution_name + '_' + str(agent_execution.id)))
+        return path.replace(
+            "{agent_execution_id}",
+            f'{formatted_agent_execution_name}_{str(agent_execution.id)}',
+        )
 
     @classmethod
     def get_resource_path(cls, file_name: str):
@@ -80,10 +86,14 @@ class ResourceHelper:
         root_dir = get_config('RESOURCES_OUTPUT_ROOT_DIR')
 
         if root_dir is not None:
-            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-            root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+            root_dir = (
+                root_dir
+                if root_dir.startswith("/")
+                else f"{os.getcwd()}/{root_dir}"
+            )
+            root_dir = root_dir if root_dir.endswith("/") else f"{root_dir}/"
         else:
-            root_dir = os.getcwd() + "/"
+            root_dir = f"{os.getcwd()}/"
         return root_dir
 
     @classmethod
@@ -93,10 +103,14 @@ class ResourceHelper:
         root_dir = get_config('RESOURCES_INPUT_ROOT_DIR')
 
         if root_dir is not None:
-            root_dir = root_dir if root_dir.startswith("/") else os.getcwd() + "/" + root_dir
-            root_dir = root_dir if root_dir.endswith("/") else root_dir + "/"
+            root_dir = (
+                root_dir
+                if root_dir.startswith("/")
+                else f"{os.getcwd()}/{root_dir}"
+            )
+            root_dir = root_dir if root_dir.endswith("/") else f"{root_dir}/"
         else:
-            root_dir = os.getcwd() + "/"
+            root_dir = f"{os.getcwd()}/"
         return root_dir
 
     @classmethod
@@ -115,8 +129,7 @@ class ResourceHelper:
                 root_dir = ResourceHelper.get_formatted_agent_execution_level_path(agent_execution, root_dir)
             directory = os.path.dirname(root_dir)
             os.makedirs(directory, exist_ok=True)
-        final_path = root_dir + file_name
-        return final_path
+        return root_dir + file_name
 
     @classmethod
     def get_agent_read_resource_path(cls, file_name, agent: Agent, agent_execution: AgentExecution):

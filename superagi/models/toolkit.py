@@ -91,12 +91,11 @@ class Toolkit(DBBaseModel):
     def fetch_marketplace_list(cls, page):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
-            marketplace_url + f"/toolkits/marketplace/list/{str(page)}",
-            headers=headers, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return []
+            f"{marketplace_url}/toolkits/marketplace/list/{str(page)}",
+            headers=headers,
+            timeout=10,
+        )
+        return response.json() if response.status_code == 200 else []
 
     @classmethod
     def fetch_marketplace_detail(cls, search_str, toolkit_name):
@@ -104,17 +103,19 @@ class Toolkit(DBBaseModel):
         search_str = search_str.replace(' ', '%20')
         toolkit_name = toolkit_name.replace(' ', '%20')
         response = requests.get(
-            marketplace_url + f"/toolkits/marketplace/{search_str}/{toolkit_name}",
-            headers=headers, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return None
+            f"{marketplace_url}/toolkits/marketplace/{search_str}/{toolkit_name}",
+            headers=headers,
+            timeout=10,
+        )
+        return response.json() if response.status_code == 200 else None
 
     @staticmethod
     def get_toolkit_from_name(session, toolkit_name, organisation):
-        toolkit = session.query(Toolkit).filter_by(name=toolkit_name, organisation_id=organisation.id).first()
-        if toolkit:
+        if (
+            toolkit := session.query(Toolkit)
+            .filter_by(name=toolkit_name, organisation_id=organisation.id)
+            .first()
+        ):
             return toolkit
         return None
 
@@ -122,10 +123,9 @@ class Toolkit(DBBaseModel):
     def get_toolkit_installed_details(cls, session, marketplace_toolkits, organisation):
         installed_toolkits = session.query(Toolkit).filter(Toolkit.organisation_id == organisation.id).all()
         for toolkit in marketplace_toolkits:
-            if toolkit['name'] in [installed_toolkit.name for installed_toolkit in installed_toolkits]:
-                toolkit["is_installed"] = True
-            else:
-                toolkit["is_installed"] = False
+            toolkit["is_installed"] = toolkit['name'] in [
+                installed_toolkit.name for installed_toolkit in installed_toolkits
+            ]
         return marketplace_toolkits
 
     @classmethod

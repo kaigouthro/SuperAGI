@@ -32,8 +32,7 @@ class ResourceManager:
         if file_path is None:
             raise Exception("file_path must be provided")
         if os.path.exists(file_path):
-            documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
-            return documents
+            return SimpleDirectoryReader(input_files=[file_path]).load_data()
 
     def create_llama_document_s3(self, file_path: str):
         """
@@ -55,14 +54,12 @@ class ResourceManager:
             bucket_name = get_config("BUCKET_NAME")
             file = s3.get_object(Bucket=bucket_name, Key=file_path)
             file_name = file_path.split("/")[-1]
-            save_directory = "/"
-            temporary_file_path = save_directory + file_name
+            temporary_file_path = f"/{file_name}"
             with open(temporary_file_path, "wb") as f:
                 contents = file['Body'].read()
                 f.write(contents)
 
-            documents = SimpleDirectoryReader(input_files=[temporary_file_path]).load_data()
-            return documents
+            return SimpleDirectoryReader(input_files=[temporary_file_path]).load_data()
         except Exception as e:
             logger.error("superagi/resource_manager/resource_manager.py - create_llama_document_s3 threw : ", e)
         finally:

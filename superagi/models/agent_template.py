@@ -96,9 +96,19 @@ class AgentTemplate(DBBaseModel):
             list: List of main keys.
         """
 
-        keys_to_fetch = ["goal", "instruction", "agent_type", "constraints", "tools", "exit", "iteration_interval", "model",
-                         "permission_type", "LTM_DB", "max_iterations"]
-        return keys_to_fetch
+        return [
+            "goal",
+            "instruction",
+            "agent_type",
+            "constraints",
+            "tools",
+            "exit",
+            "iteration_interval",
+            "model",
+            "permission_type",
+            "LTM_DB",
+            "max_iterations",
+        ]
 
     @classmethod
     def fetch_marketplace_list(cls, search_str, page):
@@ -115,12 +125,11 @@ class AgentTemplate(DBBaseModel):
 
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
-            marketplace_url + "agent_templates/marketplace/list?search=" + search_str + "&page=" + str(page),
-            headers=headers, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return []
+            f"{marketplace_url}agent_templates/marketplace/list?search={search_str}&page={str(page)}",
+            headers=headers,
+            timeout=10,
+        )
+        return response.json() if response.status_code == 200 else []
 
     @classmethod
     def fetch_marketplace_detail(cls, agent_template_id):
@@ -136,12 +145,11 @@ class AgentTemplate(DBBaseModel):
 
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
-            marketplace_url + "agent_templates/marketplace/template_details/" + str(agent_template_id),
-            headers=headers, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return {}
+            f"{marketplace_url}agent_templates/marketplace/template_details/{str(agent_template_id)}",
+            headers=headers,
+            timeout=10,
+        )
+        return response.json() if response.status_code == 200 else {}
 
     @classmethod
     def clone_agent_template_from_marketplace(cls, db, organisation_id: int, agent_template_id: int):
@@ -167,12 +175,12 @@ class AgentTemplate(DBBaseModel):
         db.session.commit()
         db.session.flush()
 
-        agent_configurations = []
-        for key, value in agent_template["configs"].items():
-            # Converting tool names to ids and saving it in agent configuration
-            agent_configurations.append(
-                AgentTemplateConfig(agent_template_id=template.id, key=key, value=str(value["value"])))
-
+        agent_configurations = [
+            AgentTemplateConfig(
+                agent_template_id=template.id, key=key, value=str(value["value"])
+            )
+            for key, value in agent_template["configs"].items()
+        ]
         db.session.add_all(agent_configurations)
         db.session.commit()
         db.session.flush()
@@ -195,7 +203,7 @@ class AgentTemplate(DBBaseModel):
             return value
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
-        elif key == "goal" or key == "constraints" or key == "instruction":
+        elif key in ["goal", "constraints", "instruction"]:
             return eval(value)
         elif key == "tools":
             return [str(x) for x in eval(value)]

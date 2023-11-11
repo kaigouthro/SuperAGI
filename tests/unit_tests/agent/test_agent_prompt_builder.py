@@ -81,7 +81,7 @@ def test_get_super_agi_single_prompt():
         }
         formatted_response_format = json.dumps(expected_response_format, indent=4)
 
-        expected_prompt = "Mocked prompt with " + formatted_response_format
+        expected_prompt = f"Mocked prompt with {formatted_response_format}"
         expected_result = {"prompt": expected_prompt, "variables": ["goals", "instructions", "constraints", "tools"]}
 
         assert result == expected_result

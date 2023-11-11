@@ -66,9 +66,7 @@ class AgentExecutor:
         Returns:
             str: The validated filename.
         """
-        if filename.endswith(".py"):
-            return filename[:-3]  # Remove the last three characters (i.e., ".py")
-        return filename
+        return filename[:-3] if filename.endswith(".py") else filename
 
     @staticmethod
     def create_object(tool, session):
@@ -118,9 +116,7 @@ class AgentExecutor:
         selected_model_source = ModelSourceType.get_model_source_from_model(model)
         if selected_model_source.value == config_model_source:
             config_value = Configuration.fetch_value_by_agent_id(session, agent_execution.agent_id, "model_api_key")
-            model_api_key = decrypt_data(config_value)
-            return model_api_key
-
+            return decrypt_data(config_value)
         if selected_model_source == ModelSourceType.GooglePalm:
             return get_config("PALM_API_KEY")
         return get_config("OPENAI_API_KEY")
@@ -133,9 +129,7 @@ class AgentExecutor:
     def get_embedding(cls, model_source, model_api_key):
         if "OpenAi" in model_source:
             return OpenAiEmbedding(api_key=model_api_key)
-        if "Google" in model_source:
-            return GooglePalm(api_key=model_api_key)
-        return None
+        return GooglePalm(api_key=model_api_key) if "Google" in model_source else None
 
     @staticmethod
     def get_organisation(agent_execution,session):
@@ -151,9 +145,7 @@ class AgentExecutor:
         """
         agent_id = agent_execution.agent_id
         agent = session.query(Agent).filter(Agent.id == agent_id).first()
-        organisation = agent.get_agent_organisation(session)
-
-        return organisation
+        return agent.get_agent_organisation(session)
 
 
     def execute_next_action(self, agent_execution_id):
@@ -177,7 +169,7 @@ class AgentExecutor:
         agent = session.query(Agent).filter(Agent.id == agent_execution.agent_id).first()
         # if agent_execution.status == "PAUSED" or agent_execution.status == "TERMINATED" or agent_execution == "COMPLETED":
         #     return
-        if agent_execution.status != "RUNNING" and agent_execution.status != "WAITING_FOR_PERMISSION":
+        if agent_execution.status not in ["RUNNING", "WAITING_FOR_PERMISSION"]:
             return
 
         if not agent:
@@ -306,8 +298,11 @@ class AgentExecutor:
                 tool.goals = parsed_execution_config["goal"]
             if hasattr(tool, 'instructions'):
                 tool.instructions = parsed_execution_config["instruction"]
-            if hasattr(tool, 'llm') and (parsed_config["model"] == "gpt4" or parsed_config[
-                "model"] == "gpt-3.5-turbo") and tool.name != "QueryResource":
+            if (
+                hasattr(tool, 'llm')
+                and parsed_config["model"] in ["gpt4", "gpt-3.5-turbo"]
+                and tool.name != "QueryResource"
+            ):
                 tool.llm = get_model(model="gpt-3.5-turbo", api_key=model_api_key, temperature=0.4)
             elif hasattr(tool, 'llm'):
                 tool.llm = get_model(model=parsed_config["model"], api_key=model_api_key, temperature=0.4)
@@ -349,8 +344,7 @@ class AgentExecutor:
         if agent_execution_permission.status == "APPROVED":
             result = spawned_agent.handle_tool_response(session, agent_execution_permission.assistant_reply).get("result")
         else:
-            result = f"User denied the permission to run the tool {agent_execution_permission.tool_name}" \
-                     f"{' and has given the following feedback : ' + agent_execution_permission.user_feedback if agent_execution_permission.user_feedback else ''}"
+            result = f"User denied the permission to run the tool {agent_execution_permission.tool_name}{f' and has given the following feedback : {agent_execution_permission.user_feedback}' if agent_execution_permission.user_feedback else ''}"
 
         agent_execution_feed = AgentExecutionFeed(agent_execution_id=agent_execution_permission.agent_execution_id,
                                                   agent_id=agent_execution_permission.agent_id,
@@ -366,13 +360,14 @@ class AgentExecutor:
             return
         ResourceSummarizer(session=session).generate_agent_summary(agent_id=agent_id,generate_all=True)
         agent_config_resource_summary = session.query(AgentConfiguration). \
-            filter(AgentConfiguration.agent_id == agent_id,
+                filter(AgentConfiguration.agent_id == agent_id,
                    AgentConfiguration.key == "resource_summary").first()
-        resource_summary = agent_config_resource_summary.value if agent_config_resource_summary is not None else default_summary
-        return resource_summary
+        return (
+            agent_config_resource_summary.value
+            if agent_config_resource_summary is not None
+            else default_summary
+        )
 
     def check_for_resource(self,agent_id: int, session: Session):
         resource = session.query(Resource).filter(Resource.agent_id == agent_id,Resource.channel == 'INPUT').first()
-        if resource is None:
-            return False
-        return True
+        return resource is not None

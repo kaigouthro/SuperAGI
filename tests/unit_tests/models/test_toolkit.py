@@ -116,9 +116,9 @@ def test_fetch_marketplace_list_success():
         # Assert
         assert result == expected_response
         mock_get.assert_called_once_with(
-            f"{marketplace_url}/toolkits/marketplace/list/{str(page)}",
+            f"{marketplace_url}/toolkits/marketplace/list/{page}",
             headers={'Content-Type': 'application/json'},
-            timeout=10
+            timeout=10,
         )
 
 def test_fetch_marketplace_detail_success():

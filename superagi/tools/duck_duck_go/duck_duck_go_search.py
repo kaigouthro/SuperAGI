@@ -43,7 +43,7 @@ class DuckDuckGoSearchTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _execute(self, query: str) -> tuple:
-        
+
         """
         Execute the DuckDuckGo search tool.
 
@@ -55,20 +55,16 @@ class DuckDuckGoSearchTool(BaseTool):
         """
 
         search_results = self.get_raw_duckduckgo_results(query)
-        links=[]                                                                        
-        
-        for result in search_results:                                                       
-            links.append(result["href"])
-        
+        links = [result["href"] for result in search_results]
         webpages=self.get_content_from_url(links)
 
         results=self.get_formatted_webpages(search_results,webpages)                        #array to store objects with keys :{"title":snippet , "body":webpage content, "links":link URL}
-        
-        summary = self.summarise_result(query, results)                                     #summarize the content gathered using the function
-        links = [result["links"] for result in results if len(result["links"]) > 0]
 
-        if len(links) > 0:
-            return summary + "\n\nLinks:\n" + "\n".join("- " + link for link in links[:3])
+        summary = self.summarise_result(query, results)                                     #summarize the content gathered using the function
+        if links := [
+            result["links"] for result in results if len(result["links"]) > 0
+        ]:
+            return summary + "\n\nLinks:\n" + "\n".join(f"- {link}" for link in links[:3])
 
         return summary
 

@@ -77,7 +77,7 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
             file.file.close()
     elif storage_type == StorageType.S3:
         bucket_name = get_config("BUCKET_NAME")
-        file_path = 'resources' + file_path
+        file_path = f'resources{file_path}'
         try:
             s3.upload_fileobj(file.file, bucket_name, file_path)
             logger.info("File uploaded successfully!")
@@ -111,8 +111,7 @@ def get_all_resources(agent_id: int,
 
     """
 
-    resources = db.session.query(Resource).filter(Resource.agent_id == agent_id).all()
-    return resources
+    return db.session.query(Resource).filter(Resource.agent_id == agent_id).all()
 
 
 @router.get("/get/{resource_id}", status_code=200)

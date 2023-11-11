@@ -37,10 +37,11 @@ class ToolsHandler:
 
         result = query.all()
 
-        tool_usage = [{
-            'tool_name': row.tool_name,
-            'unique_agents': row.unique_agents,
-            'total_usage': row.total_usage
-        } for row in result]
-
-        return tool_usage
+        return [
+            {
+                'tool_name': row.tool_name,
+                'unique_agents': row.unique_agents,
+                'total_usage': row.total_usage,
+            }
+            for row in result
+        ]

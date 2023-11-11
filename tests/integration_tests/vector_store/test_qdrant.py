@@ -9,8 +9,7 @@ from qdrant_client import QdrantClient
 
 @pytest.fixture
 def client():
-    client = QdrantClient(":memory:")
-    yield client
+    yield QdrantClient(":memory:")
 
 
 @pytest.fixture

@@ -90,11 +90,10 @@ def get_user(user_id: int,
 
     """
 
-    # Authorize.jwt_required()
-    db_user = db.session.query(User).filter(User.id == user_id).first()
-    if not db_user:
+    if db_user := db.session.query(User).filter(User.id == user_id).first():
+        return db_user
+    else:
         raise HTTPException(status_code=404, detail="User not found")
-    return db_user
 
 
 @router.put("/update/{user_id}", response_model=UserOut)

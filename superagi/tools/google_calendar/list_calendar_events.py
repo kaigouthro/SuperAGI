@@ -32,13 +32,13 @@ class ListCalendarEventsTool(BaseTool):
     def _execute(self, start_time: str = 'None', start_date: str = 'None', end_date: str = 'None', end_time: str = 'None'):
         service = self.get_google_calendar_service()
         if not service["success"]:
-            return f"Kindly connect to Google Calendar"
-        
+            return "Kindly connect to Google Calendar"
+
         date_utc = CalendarDate().get_date_utc(start_date, end_date, start_time, end_time, service["service"])
         event_results = self.get_event_results(service["service"], date_utc)
         if not event_results:
-            return f"No events found for the given date and time range."
-        
+            return "No events found for the given date and time range."
+
         csv_data = self.generate_csv_data(event_results)
         file_name = self.create_output_file()
         if file_name is not None:
@@ -81,5 +81,4 @@ class ListCalendarEventsTool(BaseTool):
     def create_output_file(self):
         file = datetime.now()
         file = file.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        file_name = "Google_Calendar_" + file + ".csv"
-        return file_name
+        return f"Google_Calendar_{file}.csv"

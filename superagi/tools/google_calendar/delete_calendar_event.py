@@ -20,12 +20,11 @@ class DeleteCalendarEventTool(BaseTool):
         if service["success"]:
             service = service["service"]
         else:
-            return f"Kindly connect to Google Calendar"
+            return "Kindly connect to Google Calendar"
         if event_id == "None":
-            return f"Add Event ID to delete an event from Google Calendar"
-        else:
-            result = service.events().delete(
-                calendarId = "primary",
-                eventId = event_id
-            ).execute()
-            return f"Event Successfully deleted from your Google Calendar"
+            return "Add Event ID to delete an event from Google Calendar"
+        result = service.events().delete(
+            calendarId = "primary",
+            eventId = event_id
+        ).execute()
+        return "Event Successfully deleted from your Google Calendar"

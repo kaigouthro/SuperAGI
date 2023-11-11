@@ -37,9 +37,6 @@ class OpenAiDalle(BaseImageLlm):
         Returns:
             dict: The response.
         """
-        response = openai.Image.create(
-            prompt=prompt,
-            n=self.number_of_results,
-            size=f"{size}x{size}"
+        return openai.Image.create(
+            prompt=prompt, n=self.number_of_results, size=f"{size}x{size}"
         )
-        return response
